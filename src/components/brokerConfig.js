@@ -24,10 +24,10 @@ const BrokerConfig = (props) => {
   const [disableForm, setdisableForm] = useState(false);
   const [form] = Form.useForm();
   const [record, setRecord] = useState({
-    url: 'wss://mr-connection-a5z0dnolylf.messaging.solace.cloud:443',
-    vpn: 'sandpit',
+    url: 'wss://mr-connection-19t3yhqhz2b.messaging.solace.cloud:443',
+    vpn: 'ens',
     username: 'solace-cloud-client',
-    password: '659gb2e1gle5cbvjdr18r1vt6t',
+    password: '9q9f0sfma05sfcuej9391s7pvr',
     clientname: `stm_feed_web_${Math.random().toString(16).substring(2, 10)}`,
     qos: 'direct',
     msgformat: 'text',

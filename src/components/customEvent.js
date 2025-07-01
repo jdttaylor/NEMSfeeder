@@ -5,6 +5,7 @@ import { Button, Form, Row, Col, Input, List, Tag, Collapse, Select, message, Mo
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Highlighter from 'react-highlight-words';
 import solace, { SolclientFactory } from 'solclientjs';
+import TopicSelector from './topicSelector';
 import {
   CopyOutlined,
   CaretRightOutlined,
@@ -53,14 +54,10 @@ const CustomEvent = () => {
     }
   }, [streamedEvents]);
 
-  useEffect(() => {
-    form.setFieldsValue({ topic: selectedTopic });
-  }, [selectedTopic]);
-
   const handleSubmitCustomEvent = (values) => {
 
     const topic = values.topic;
-    console.log(topic);
+    console.log('Topic selected:', topic);
     const headers = values.headers ? JSON.parse(values.headers) : {};
     let payload = "";
 
@@ -137,44 +134,6 @@ const CustomEvent = () => {
     }
   };
 
-  const handleTopicSelect = async () => {
-
-    if (!queueName) return;
-
-    try {
-       const res = await fetch(`http://localhost:8081/subscriptions/${queueName}`);
-       const topics = await res.json();
-       setTopics(topics); 
-       setIsModalVisible(true);
-
-       if (Array.isArray(topics)) {
-         setTopics(topics);
-       } else {
-         console.warn('Expected an array but got:', topics);
-         setTopics([]); 
-      }
-
-    } catch (err) {
-      console.error('Error fetching subscriptions:', err);
-      setTopics([]); 
-    }
-
-  };
-
-  function handleTopicFormat(subscription) {
-    setIsModalVisible(false);
-  
-    let formatted = '';
-    if (subscription === 'demographics/>') {
-      formatted = 'demographics/patient/death/{verb}/0.1.0/{district}/{domicile}/{gp_practice}';
-    } else {
-        formatted = 'demographics/patient/death/new/1.0.0/G00036-D/2203/FZZ988-H';
-    }
-  
-    setSelectedTopic(formatted);
-    console.log(selectedTopic);
-  }
-
   const CustomEvents = (
     <div>
   
@@ -184,59 +143,11 @@ const CustomEvent = () => {
         name="custom-event"
         onFinish={handleSubmitCustomEvent}
       >
+         
         <Row gutter={20}>
           <Col span={16}>
-
-            <Form.Item label="Queue Name">
-               <InputGroup compact>
-                 <Input
-                    style={{ width: 'calc(100% - 100px)' }}
-                    value={queueName}
-                    onChange={(e) => setQueueName(e.target.value)}
-                    placeholder="Enter queue name"
-                    />
-                <Tooltip title="Search Subscribed Topics">
-                    <SearchOutlined
-                        onClick={handleTopicSelect}
-                        style={{ padding: '0 0 0 10px' }}
-                    >
-                    </SearchOutlined>
-                </Tooltip>
-              </InputGroup>
-            </Form.Item>
-            <Modal
-                title="Select a Topic"
-                open={isModalVisible}
-                onCancel={() => setIsModalVisible(false)}
-                footer={null}
-                >
-                <List
-                    dataSource={topics}
-                    renderItem={(item) => (
-                    <List.Item 
-                       onClick={() => handleTopicFormat(item)}
-                       style={{
-                          cursor: 'pointer',
-                          padding: '8px',
-                          transition: 'background-color 0.3s',
-                       }}
-                       onMouseEnter={(e) => {
-                        e.currentTarget.style.backgroundColor = '#e6f7ff';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.backgroundColor = 'transparent';
-                      }}
-                    >
-                        {item}
-                    </List.Item>
-                    )}
-                />
-            </Modal>
-            <Form.Item
-                label="Topic"
-                name="topic">
-              <Input />
-            </Form.Item>
+           
+            <TopicSelector />
             <Form.Item
               label="Headers (JSON)"
               name="headers"
@@ -269,7 +180,6 @@ const CustomEvent = () => {
                 },
                 {
                   validator: (_, value) => {
-                    // Allow non-JSON or non-array strings
                     if (!value.trim().startsWith('[')) {
                       return Promise.resolve();
                     }
