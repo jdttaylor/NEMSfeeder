@@ -58,11 +58,12 @@ const IndexPage = () => {
     modal.show();
   };
 
+  const showLocal = false;
+  const gitSite = 'https://raw.githubusercontent.com/jdttaylor/nemes-event-feeds/main/EVENT_FEEDS.json'
+
   useEffect(() => {
     const fetchFeeds = async () => {
-      var feedsData = await axios.get(
-        'https://raw.githubusercontent.com/solacecommunity/solace-event-feeds/main/EVENT_FEEDS.json'
-      );
+      var feedsData = await axios.get(gitSite);
       feedsData = feedsData.data.filter((feed) => feed.type !== 'restapi_feed');
       // sort FeedsData by feedsData.name
       feedsData.sort((a, b) => a.name.localeCompare(b.name));
@@ -148,89 +149,9 @@ const IndexPage = () => {
         </section>
 
         <section id="feeds-section">
-          {/* {state.isLoading ? (
-            <Loading section="Digital Service Events" />
+          {state.isLoading ? (
+            <Loading section="NEMS Events" />
           ) : (
-            <Container className="pb5">
-              <Row className="mt3">
-                <Col
-                  xs={5}
-                  sm={5}
-                  md={5}
-                  lg={5}
-                  xl={5}
-                  xxl={5}
-                  className="mt3 mb3"
-                >
-                  <InputGroup className="mt3 mb3">
-                    <input
-                      type="text"
-                      className="form-control"
-                      placeholder="Search Digital Services Events..."
-                      value={search}
-                      onChange={(e) => setSearch(e.target.value)}
-                    />
-                    <Tooltip title="Clear search">
-                      <Button
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          fontSize: '20px',
-                        }}
-                        onClick={(e) => setSearch('')}
-                        icon={<ClearOutlined />}
-                      />
-                    </Tooltip>
-                    <Tooltip title="Settings">
-                      <Button
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          fontSize: '20px',
-                        }}
-                        onClick={(e) => launchSettings()}
-                        icon={<SettingOutlined />}
-                      />
-                    </Tooltip>
-                  </InputGroup>
-                </Col>
-              </Row>
-              <h2 className="mt4">Digital Service Events</h2>
-              <Row className="mt3">
-                {state.communityFeeds
-                  .filter((item) => {
-                    if (search.toLowerCase() === '') {
-                      return item;
-                    } else {
-                      return (
-                        item.name
-                          .toLowerCase()
-                          .includes(search.toLowerCase()) ||
-                        item.domain.toLowerCase().includes(search.toLowerCase())
-                      );
-                    }
-                  })
-                  .map((feed, index) => (
-                    <Col
-                      key={index}
-                      xs={12}
-                      sm={12}
-                      md={4}
-                      lg={4}
-                      xl={4}
-                      xxl={3}
-                      className="mt3 mb3"
-                    >
-                      <FeedCard feed={feed} index={index} isLocal={false} />
-                    </Col>
-                  ))}
-              </Row>
-            </Container>
-          )} */}
-
-          { state.isLoading ? (
-  <Loading section="Digital Service Events" />
-) : (
             <Container className="pb5">
               <Row className="mt3">
                 <Col
@@ -261,21 +182,80 @@ const IndexPage = () => {
                         icon={<ClearOutlined />}
                       />
                     </Tooltip>
-                    <Tooltip title="Settings">
+                  </InputGroup>
+                </Col>
+              </Row>
+              <h2 className="mt4">NEMS Events</h2>
+              <Row className="mt3">
+                {state.communityFeeds
+                  .filter((item) => {
+                    if (search.toLowerCase() === '') {
+                      return item;
+                    } else {
+                      return (
+                        item.name
+                          .toLowerCase()
+                          .includes(search.toLowerCase()) ||
+                        item.domain.toLowerCase().includes(search.toLowerCase())
+                      );
+                    }
+                  })
+                  .map((feed, index) => (
+                    <Col
+                      key={index}
+                      xs={12}
+                      sm={12}
+                      md={4}
+                      lg={4}
+                      xl={4}
+                      xxl={3}
+                      className="mt3 mb3"
+                    >
+                      <FeedCard feed={feed} index={index} isLocal={false} />
+                    </Col>
+                  ))}
+              </Row>
+            </Container>
+          )} 
+
+          { state.isLoading ? (
+            <Loading section="Local Events" />
+          ) : (
+            <Container className="pb5"
+                       style={{ display: showLocal ? 'block' : 'none' }}>
+              <Row className="mt3">
+                <Col
+                  xs={5}
+                  sm={5}
+                  md={5}
+                  lg={5}
+                  xl={5}
+                  xxl={5}
+                  className="mt3 mb3"
+                >
+                  <InputGroup className="mt3 mb3">
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="Search Local Events..."
+                      value={search}
+                      onChange={(e) => setSearch(e.target.value)}
+                    />
+                    <Tooltip title="Clear search">
                       <Button
                         style={{
                           background: 'none',
                           border: 'none',
                           fontSize: '20px',
                         }}
-                        onClick={(e) => launchSettings()}
-                        icon={<SettingOutlined />}
+                        onClick={(e) => setSearch('')}
+                        icon={<ClearOutlined />}
                       />
                     </Tooltip>
                   </InputGroup>
                 </Col>
               </Row>
-              <h2 className="mt4">NEMS Events</h2>
+              <h2 className="mt4">Local Events</h2>
               {state.localFeeds.length > 0 ? (
               <Row>
                 {state.localFeeds
@@ -313,7 +293,7 @@ const IndexPage = () => {
                 </div>
               )}
             </Container>
-)
+            )
           }
           {state.isLoading ? (
             <Loading section="Manual Events" />

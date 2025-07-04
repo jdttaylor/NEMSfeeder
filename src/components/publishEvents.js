@@ -85,7 +85,7 @@ const PublishEvents = (props) => {
             e.target.className.includes(className)
           )
         : null;
-    if (e.target.dataset.icon == 'up' || e.target.dataset.icon == 'down')
+    if (e.target.dataset.icon === 'up' || e.target.dataset.icon === 'down')
       skip = true;
 
     if (skip) return;
@@ -197,7 +197,7 @@ const PublishEvents = (props) => {
   const startFeed = (item) => {
     if (activeEvents[item.eventName]?.active) return; // Don't start if already active
     const message = SolclientFactory.createMessage();
-    sessionProperties.qos == 'direct'
+    sessionProperties.qos === 'direct'
       ? message.setDeliveryMode(solace.MessageDeliveryModeType.DIRECT)
       : message.setDeliveryMode(solace.MessageDeliveryModeType.PERSISTENT);
 
@@ -427,17 +427,17 @@ const PublishEvents = (props) => {
     if (session) {
       try {
         stopAllFeed();
-        console.log('Disconnecting Solace session.');
+        console.log('Disconnecting NEMS session.');
         session.removeAllListeners();
         session.disconnect();
-        console.log('Disconnected from Solace message router.');
+        console.log('Disconnected from NEMS message router.');
       } catch (error) {
         console.log(
-          'Error disconnecting from Solace message router: ',
+          'Error disconnecting from NEMS message router: ',
           error.toString()
         );
         setErrorString(
-          'Error disconnecting from Solace message router: ',
+          'Error disconnecting from NEMS message router: ',
           error.toString()
         );
       }

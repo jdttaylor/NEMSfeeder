@@ -22,7 +22,6 @@ const Header = () => (
         <Nav className="mr-auto">
         <Nav.Link
             href="http://localhost:9005"
-            target="_blank"
             rel="noopener noreferrer"
           >
             Home

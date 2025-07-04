@@ -33,8 +33,8 @@ const feedMetadata = {
 
 const reducer = (state, action) => {
   switch(action.type) {
-    case 'SET_FAKER_RULES':
-      return { ...state, fakerRules: action.payload };
+    //case 'SET_FAKER_RULES':
+    //  return { ...state, fakerRules: action.payload };
     case 'SET_SPEC_FILE':
       return { ...state, specFile: action.payload };
     case 'SET_SPEC_FILE_URL':
@@ -85,34 +85,36 @@ const FeedPage = ({ location }) => {
     URL.revokeObjectURL(url);
   };
 
+  const gitSite = 'jdttaylor/nems-event-feeds'
+
   useEffect(() => {
     const fetchGithubFeedInfo = async () => {
       // Query all the feed metadata
 
       var githubFiles = await axios.get(
-        `https://api.github.com/repos/solacecommunity/solace-event-feeds/contents/${encodeURIComponent(feed.name)}`
+        `https://api.github.com/repos/${gitSite}/contents/${encodeURIComponent(feed.name.toLowerCase())}`
       );
 
       var feedInfo = await axios.get(
-        `https://raw.githubusercontent.com/solacecommunity/solace-event-feeds/main/${encodeURIComponent(feed.name)}/feedinfo.json`
+        `https://raw.githubusercontent.com/${gitSite}/main/${encodeURIComponent(feed.name.toLowerCase())}/feedinfo.json`
       );
       dispatch({ type: 'SET_FEED_INFO', payload: feedInfo.data });
 
       var feedRules = await axios.get(
-        `https://raw.githubusercontent.com/solacecommunity/solace-event-feeds/main/${encodeURIComponent(feed.name)}/feedrules.json`
+        `https://raw.githubusercontent.com/${gitSite}/main/${encodeURIComponent(feed.name.toLowerCase())}/feedrules.json`
       );
       dispatch({ type: 'SET_FEED_RULES', payload: feedRules.data });
 
       if(feed.type === 'asyncapi_feed') {
         var analysis = await axios.get(
-          `https://raw.githubusercontent.com/solacecommunity/solace-event-feeds/main/${encodeURIComponent(feed.name)}/analysis.json`
+          `https://raw.githubusercontent.com/${gitSite}/main/${encodeURIComponent(feed.name.toLowerCase())}/analysis.json`
         );
         dispatch({ type: 'SET_ANALYSIS', payload: analysis.data });
 
         var feedSession = null;
         try {
           feedSession = await axios.get(
-            `https://raw.githubusercontent.com/solacecommunity/solace-event-feeds/main/${encodeURIComponent(feed.name)}/feedsession.json`
+            `https://raw.githubusercontent.com/${gitSite}/main/${encodeURIComponent(feed.name.toLowerCase())}/feedsession.json`
           );
         } catch(error) {
           // old feed, no feedsession.json - ignore error
@@ -134,7 +136,7 @@ const FeedPage = ({ location }) => {
         dispatch({ type: 'SET_SPEC_FILE', payload: specFile.data });
       } else if(feed.type === 'restapi_feed') {
         var feedAPI = await axios.get(
-          `https://raw.githubusercontent.com/solacecommunity/solace-event-feeds/main/${encodeURIComponent(feed.name)}/feedapi.json`
+          `https://raw.githubusercontent.com/${gitSite}/main/${encodeURIComponent(feed.name.toLowerCase())}/feedapi.json`
         );
         dispatch({ type: 'SET_FEED_API', payload: feedAPI.data });
       }
@@ -148,13 +150,17 @@ const FeedPage = ({ location }) => {
       );
       dispatch({ type: 'SET_FEED_RULES', payload: feedDetails['feedrules'] });
       dispatch({ type: 'SET_FEED_INFO', payload: feedDetails['feedinfo'] });
-      dispatch({ type: 'SET_FEED_API', payload: feedDetails['feedapi'] });
-      dispatch({ type: 'SET_ANALYSIS', payload: feedDetails['analysis'] });
-      dispatch({ type: 'SET_FEED_SESSION', payload: feedDetails['feedsession'] });
-      dispatch({ type: 'SET_SPEC_FILE', payload: feedDetails['specFile'] });
+      if(feed.type === 'restapi_feed') {
+         dispatch({ type: 'SET_FEED_API', payload: feedDetails['feedapi'] });
+      }
+      if(feed.type === 'asyncapi_feed') {
+         dispatch({ type: 'SET_ANALYSIS', payload: feedDetails['analysis'] });
+         dispatch({ type: 'SET_FEED_SESSION', payload: feedDetails['feedsession'] });
+         dispatch({ type: 'SET_SPEC_FILE', payload: feedDetails['specFile'] });
+      }
     };
 
-    feed.isLocal == 'true' ? fetchLocalFeedInfo() : fetchGithubFeedInfo();
+    feed.isLocal === 'true' ? fetchLocalFeedInfo() : fetchGithubFeedInfo();
   }, []);
 
   return (
@@ -205,7 +211,7 @@ const FeedPage = ({ location }) => {
                   }}
                   onClick={() =>
                     window.open(
-                      feed.isLocal == 'true'
+                      feed.isLocal === 'true'
                         ? 'https://studio.solace.dev'
                         : `https://studio.solace.dev/?specURL=${state.specFileURL}`,
                       '_blank'
@@ -243,6 +249,14 @@ const FeedPage = ({ location }) => {
             </Row>
 
             {feed.type === 'asyncapi_feed' ? (
+              state.feedRules.length === 0 ? (
+                <Loading section="Events" />
+              ) : (
+                <Row className="mt3">
+                  <PublishEvents feedRules={state.feedRules} />
+                </Row>
+              )
+            ) : feed.type === 'default_feed' ? (
               state.feedRules.length === 0 ? (
                 <Loading section="Events" />
               ) : (
